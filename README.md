@@ -6,7 +6,7 @@ Helps both humans and agents answer: what changed, why, where the risk is, how i
 
 ## Why PR signals?
 
-See [MOTIVATION.md](MOTIVATION.md) for the full analysis of why structured PR signals matter in agentic SDLC workflows.
+If your team is using AI coding agents, you've probably noticed something: **the bottleneck isn't writing code anymore. It's reviewing it**. See [MOTIVATION.md](MOTIVATION.md) for the full analysis of why structured PR signals matter in agentic SDLC workflows.
 
 ## Install
 
