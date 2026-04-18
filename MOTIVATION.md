@@ -1,16 +1,44 @@
 # Why PR Signals?
 
-If your team is using AI coding agents, you've probably noticed something: **the bottleneck isn't writing code anymore. It's reviewing it**.
+If your team is using AI coding agents, you've probably noticed something:
 
-We hit this wall hard. A small team, 15+ PRs a day, most of them agent-generated. The code was landing faster than anyone could review it. PRs sat in queues. Reviews got rubber-stamped. Bugs slipped through. The velocity that AI gave us on the coding side was being eaten alive by the review side.
+**the bottleneck isn't writing code anymore — it's reviewing it.**
 
-Sound familiar?
+We hit this wall hard. A small team, 15+ PRs a day, most of them agent-generated. Code was landing faster than anyone could review it. PRs piled up. Reviews got thinner. Bugs slipped through.
 
-The problem isn't that people are bad at reviews. It's that AI-generated PRs are often **opaque**. They show you what changed but not why, not where the risk is, not what was validated, not where to actually look. Reviewers are left reverse-engineering intent from raw diffs, which is slow, exhausting, and error-prone — whether the reviewer is a human or another agent.
+It's easy to frame this as "PRs take too long to review."
 
-We realized the fix wasn't faster reviewers. It was **better PRs**.
+That's not quite right.
 
-A PR should carry enough structure that both a **human reviewer** and an **agent reviewer** can quickly answer:
+**The real issue is that the volume and frequency of PRs have fundamentally changed.**
+Agentic coding dramatically increases how much code gets produced, and the traditional review model wasn't designed for that level of throughput.
+
+At the same time, most PRs — especially AI-generated ones — are **hard to review efficiently**. They show what changed, but not:
+
+* why it changed
+* where the risk is
+* what was validated
+* where a reviewer should actually focus
+
+So every review starts from scratch. Reviewers — human or agent — have to reconstruct intent from raw diffs. That doesn't scale.
+
+We realized the solution wasn't to make reviews faster.
+
+**It was to make PRs more focused for humans to review.**
+
+Here's the other thing we noticed: if you're building an agentic SDLC pipeline, your agents are already handling a huge chunk of what used to eat human review time. Policy adherence. Code architecture. Test coverage gaps. Documentation. Code quality heuristics. All the mechanical stuff that used to generate 80% of PR comments is now caught before a human ever sees the code.
+
+That changes what human review is *for*.
+
+If the machine concerns are handled upstream, human reviewers shouldn't be re-checking them. They should be doing the thing only humans are good at: evaluating whether the change makes sense in the domain, whether the mental model holds, whether the design decision is right for this system at this moment. That's judgment work, not inspection work.
+
+PR signals exist to support exactly that shift. They give reviewers the context they need to focus on domain correctness and design intent — not formatting nits or missing test cases that an agent already caught.
+
+---
+
+# The shift: PRs as signals, not diffs
+
+A PR should carry enough structure that a reviewer can quickly answer:
 
 1. What changed?
 2. Why did it change?
@@ -18,7 +46,10 @@ A PR should carry enough structure that both a **human reviewer** and an **agent
 4. How was it validated?
 5. What kind of review is actually needed?
 
-The main idea: a PR should expose **review signals**, not just a diff.
+The core idea:
+
+> A PR should expose **review signals**, not just a diff.
+
 
 ## 1. Intent signals
 
@@ -290,7 +321,7 @@ We took everything above — the nine signal categories, the mismatch heuristics
 
 We built it because we needed it. Our team was drowning in PRs and reviews were becoming the weakest link in an otherwise fast workflow. Once we started using structured signals, reviews got faster, more targeted, and more honest. Rubber stamps dropped. Real bugs got caught earlier.
 
-We're sharing it because we know we're not the only team hitting this wall. If you're shipping AI-generated code at any meaningful pace, you're probably feeling it too.
+We're sharing it because we know we're not the only team hitting this wall. If you're shipping AI-generated code at any meaningful pace, you're probably feeling it too. And if your pipeline already has agents enforcing formatting, linting, and code quality — you've already done the hard part. The next step is making sure human review time is spent on the things agents *can't* judge: domain fit, design intent, and whether the mental model actually holds.
 
 The five buckets that matter most:
 
