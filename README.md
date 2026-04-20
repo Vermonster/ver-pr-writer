@@ -1,4 +1,4 @@
-# pr-signal-writer
+# ver-pr-writer
 
 An agent skill for generating reviewer-focused pull request descriptions using explicit PR signals.
 
@@ -11,15 +11,15 @@ If your team is using AI coding agents, you've probably noticed something: **the
 ## Install
 
 ```bash
-npx skills add Vermonster/pr-signal-writer
+npx skills add Vermonster/ver-pr-writer
 ```
 
 Or install to specific agents:
 
 ```bash
-npx skills add Vermonster/pr-signal-writer -a github-copilot
-npx skills add Vermonster/pr-signal-writer -a claude-code
-npx skills add Vermonster/pr-signal-writer -a cursor
+npx skills add Vermonster/ver-pr-writer -a github-copilot
+npx skills add Vermonster/ver-pr-writer -a claude-code
+npx skills add Vermonster/ver-pr-writer -a cursor
 ```
 
 ## What it does
@@ -65,11 +65,11 @@ The skill will always confirm before creating a new PR, and show a summary befor
 
 | File | Purpose |
 |------|---------|
-| `skills/pr-signal-writer/SKILL.md` | Agent instructions for generating and validating PR descriptions |
-| `skills/pr-signal-writer/reference/template.md` | Output template the agent follows |
-| `skills/pr-signal-writer/reference/pr-signals.md` | Team-facing explanation of PR signals |
-| `skills/pr-signal-writer/reference/pr-template.md` | GitHub PR template teams can adopt |
-| `skills/pr-signal-writer/reference/pr-signal-check.yml` | CI workflow to enforce required sections |
+| `skills/ver-pr-writer/SKILL.md` | Agent instructions for generating and validating PR descriptions |
+| `skills/ver-pr-writer/reference/template.md` | Output template the agent follows |
+| `skills/ver-pr-writer/reference/pr-signals.md` | Team-facing explanation of PR signals |
+| `skills/ver-pr-writer/reference/pr-template.md` | GitHub PR template teams can adopt |
+| `skills/ver-pr-writer/reference/pr-signal-check.yml` | CI workflow to enforce required sections |
 
 ## Adopting PR signals in your project
 

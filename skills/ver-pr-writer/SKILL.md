@@ -1,5 +1,5 @@
 ---
-name: pr-signal-writer
+name: ver-pr-writer
 description: >
   Generate and validate reviewer-focused pull request descriptions using explicit
   PR signals. Analyzes diffs to surface intent, risk, evidence, and review focus
@@ -10,7 +10,7 @@ metadata:
   version: "1.1.0"
 ---
 
-# PR Signal Writer
+# Ver PR Writer
 
 Write PR descriptions that expose high-signal review metadata.
 
@@ -22,19 +22,23 @@ Do not invent intent, evidence, or risk mitigation.
 
 ## Modes
 
+**Draft mode is the default. When in doubt, draft.**
+
 This skill has two modes. Determine which mode to use from context:
 
 - If the user says "draft", "generate", "prepare", or "write" a PR description, use **draft mode**.
 - If the user says "submit", "create", "open", "push", or "update" a PR, use **submit mode**.
-- If ambiguous, default to **draft mode** and ask if they want to submit.
+- If ambiguous or unclear, **always default to draft mode**. Display the description and ask: *"Would you like me to submit this to GitHub?"* Do not proceed to submit without an explicit yes.
 
-### Draft mode
+### Draft mode (default)
 
 Generate the PR description and display it to the user. Do not create or modify any PR on GitHub.
 
-This is the default mode.
+Always end draft output with: *"Ready to submit? Say 'submit' to create or update the PR on GitHub."*
 
 ### Submit mode
+
+**Always confirm with the user before taking any action on GitHub.** Show the generated description and ask for explicit approval before creating or updating a PR. If the user has not confirmed, stop and wait.
 
 Generate the PR description, then create or update the pull request on GitHub.
 
@@ -81,8 +85,8 @@ gh pr edit --body-file /tmp/pr-body.md
 
 #### Submit mode safeguards
 
-- Always confirm with the user before creating a new PR.
-- When updating, show a summary of what will change before applying.
+- **Always confirm with the user before creating or updating a PR.** Show the full description and wait for explicit approval. Never proceed on implied consent.
+- When updating, show a diff summary of what will change before applying.
 - Never force-push, delete branches, or merge as part of this skill.
 - If `gh auth status` fails, instruct the user to run `gh auth login` and stop.
 
@@ -213,11 +217,13 @@ auth or security changes, migrations, concurrency or caching correctness, config
 
 ### Step 6: Extract evidence
 Document:
-- what tests changed
-- what validation was actually performed
-- how to test locally (prefer exact commands; label assumptions)
+- **Tests in this PR:** what test files changed, what cases were added or modified, and what behavior they assert
+- **How to run those tests:** exact commands scoped to the changed files (e.g., `npm test path/to/spec`, `npm run test:int -- grep "feature name"`); label any prerequisites (db running, seed data, feature flag)
+- what validation was performed beyond automated tests (manual checks, QA, exploratory)
 - expected reviewer-observable behavior
 - useful artifacts: screenshots, sample requests, logs, before/after behavior
+
+Test execution and behavioral demo are different. This step covers the test suite. Step 7 covers the live walkthrough.
 
 If the PR includes UI changes (from Step 1), note in the Evidence section that screenshots or a short screencast would strengthen the PR. Add a placeholder like:
 
@@ -231,6 +237,27 @@ Identify:
 - explicit questions for reviewer judgment
 
 The goal is to reduce review effort while increasing review quality.
+
+#### How to demo locally
+
+A demo is a live behavioral walkthrough — not a test run. It lets reviewers observe the change working end-to-end in a real environment. It is separate from Step 6's test commands, which exercise the automated suite.
+
+For every PR, write a concrete demo walkthrough that lets a reviewer reproduce and experience the change in under 5 minutes. Frame the demo around the mental model and purpose — not just the mechanics.
+
+**Format:**
+1. One sentence that anchors the demo to the PR's purpose ("This demo exercises the new X behavior introduced to solve Y")
+2. Any prerequisite setup (seed data, feature flags, env vars, dev server) — distinct from test fixtures
+3. Numbered UI steps or `curl`/HTTP examples that trigger the changed behavior
+4. What to observe — specific UI state, API response field, log line, or DB value that confirms the change worked
+5. (Optional) A negative case: a scenario that should now be rejected or behave differently — framed as what a user would see, not a test assertion
+
+**When to include UI steps:** whenever the diff touches components, pages, forms, or navigation. Name the exact route and describe what to click or observe.
+
+**When to include API examples:** whenever the diff touches server actions, API routes, or service logic with an external surface. Provide a `curl` command or sample request body.
+
+**When both apply:** include both, UI first.
+
+Do not write a generic "run `npm run dev`" placeholder. If the change is too abstract to demo, explain what integration test or log confirms the behavior instead.
 
 ### Step 8: Surface uncertainty
 State:

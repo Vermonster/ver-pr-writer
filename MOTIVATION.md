@@ -315,7 +315,7 @@ This avoids fake certainty, which is a big failure mode in AI-heavy workflows.
 
 # Why we built this skill
 
-This is exactly why we created **pr-signal-writer**.
+This is exactly why we created **ver-pr-writer**.
 
 We took everything above — the nine signal categories, the mismatch heuristics, the five core buckets — and distilled it into an agent skill that does the work for you. When you run it against a diff, it inspects the changes, classifies risk, surfaces uncertainty, and produces a structured PR description that both humans and agents can act on immediately.
 
