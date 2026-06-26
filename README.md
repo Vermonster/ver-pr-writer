@@ -10,17 +10,16 @@ If your team is using AI coding agents, you've probably noticed something: **the
 
 ## Install
 
-**Both skills:**
+Both skills are installed from the same repository:
+
 ```bash
-npx skills add Vermonster/ver-pr-writer
-npx skills add Vermonster/ver-pr-review
+npx skills add Vermonster/ver-pr-skills
 ```
 
-Or install to specific agents:
+Or install to a specific agent:
 
 ```bash
-npx skills add Vermonster/ver-pr-writer -a github-copilot
-npx skills add Vermonster/ver-pr-review -a github-copilot
+npx skills add Vermonster/ver-pr-skills -a github-copilot
 ```
 
 ## ver-pr-writer
