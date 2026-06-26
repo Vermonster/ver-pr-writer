@@ -1,4 +1,4 @@
-# ver-pr-writer + ver-pr-review
+# ver-pr-skills
 
 Two agent skills for the full PR lifecycle: writing signal-rich PR descriptions and reviewing PRs with grounded technical judgment.
 
