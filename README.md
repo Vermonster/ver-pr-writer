@@ -1,6 +1,6 @@
-# ver-pr-writer
+# ver-pr-writer + ver-pr-review
 
-An agent skill for generating reviewer-focused pull request descriptions using explicit PR signals.
+Two agent skills for the full PR lifecycle: writing signal-rich PR descriptions and reviewing PRs with grounded technical judgment.
 
 Helps both humans and agents answer: what changed, why, where the risk is, how it was validated, what deserves attention, and what still needs judgment.
 
@@ -10,19 +10,20 @@ If your team is using AI coding agents, you've probably noticed something: **the
 
 ## Install
 
+**Both skills:**
 ```bash
 npx skills add Vermonster/ver-pr-writer
+npx skills add Vermonster/ver-pr-review
 ```
 
 Or install to specific agents:
 
 ```bash
 npx skills add Vermonster/ver-pr-writer -a github-copilot
-npx skills add Vermonster/ver-pr-writer -a claude-code
-npx skills add Vermonster/ver-pr-writer -a cursor
+npx skills add Vermonster/ver-pr-review -a github-copilot
 ```
 
-## What it does
+## ver-pr-writer
 
 When activated, the skill:
 
@@ -31,9 +32,7 @@ When activated, the skill:
 3. Generates a structured PR description with three sections: **Intent** (purpose, outcome, type/risk/scope), **Technical** (changed files, risk, test commands, operations), and **Human Review** (where to start, demo walkthrough, questions, uncertainty)
 4. Validates the generated signals against the actual diff and fixes mismatches
 
-## Usage
-
-The skill has two modes: **draft** and **submit**.
+### Usage
 
 ### Draft mode (default)
 
@@ -61,7 +60,25 @@ The skill will always confirm before creating a new PR, and show a summary befor
 
 **Note:** If your changes include UI updates, the skill will prompt you to add screenshots or a short screencast after the PR is created.
 
-## What's included
+## ver-pr-review
+
+Reviews PRs in two phases:
+
+**Phase 1 — Agent:** The agent inspects the diff, checks docs sync, looks for a linked issue, optionally runs a local refactor check, and reaches a technical position (approve / request changes / comment).
+
+**Phase 2 — Human:** The agent builds a concrete local test guide from the actual implementation and presents its findings. You provide your review position and any additional feedback.
+
+The skill then combines both positions — approval requires both agent and human — and proposes a terse final review for you to confirm before submitting.
+
+> "Review PR #42"
+>
+> "Review the open PR on this branch"
+>
+> "Do a code review"
+
+
+
+### ver-pr-writer
 
 | File | Purpose |
 |------|---------|
@@ -72,12 +89,19 @@ The skill will always confirm before creating a new PR, and show a summary befor
 | `skills/ver-pr-writer/reference/pr-template.md` | PR template teams can adopt |
 | `skills/ver-pr-writer/reference/pr-signal-check.yml` | CI workflow to enforce required sections |
 
+### ver-pr-review
+
+| File | Purpose |
+|------|---------|
+| `skills/ver-pr-review/SKILL.md` | Agent instructions for the two-phase PR review process |
+| `skills/ver-pr-review/reference/provider-review-strategies.md` | Per-provider commands for fetching PR context and submitting reviews |
+
 ## Git provider
 
-The skill works with **GitHub, GitLab, and Bitbucket**. It stores your provider in a control file at the repo root:
+The skill works with **GitHub, GitLab, and Bitbucket**. Both `ver-pr-writer` and `ver-pr-review` share a single control file at the repo root:
 
 ```yaml
-# .ver-pr-writer.yml
+# .ver-pr.yml
 provider: github  # github | gitlab | bitbucket
 ```
 
@@ -86,15 +110,15 @@ provider: github  # github | gitlab | bitbucket
 You can create this file manually, or let the skill do it for you. On the first submit, the skill will:
 1. Try to auto-detect the provider from your git remote URL
 2. Confirm the detected provider with you
-3. Write `.ver-pr-writer.yml` automatically
+3. Write `.ver-pr.yml` automatically
 
 You can also set it explicitly:
 
 ```bash
-echo "provider: gitlab" > .ver-pr-writer.yml
+echo "provider: gitlab" > .ver-pr.yml
 ```
 
-Commit `.ver-pr-writer.yml` to share the provider setting with your team. If the file is absent, each person will be asked once.
+Commit `.ver-pr.yml` to share the provider setting with your team. If the file is absent, each person will be asked once.
 
 **Provider-specific behavior:**
 - **GitHub** — uses `gh` CLI or the `github-pull-request_create_pull_request` MCP tool; creates draft PRs by default
@@ -110,7 +134,7 @@ To enforce the signal structure on your team's PRs:
    - **GitLab:** `.gitlab/merge_request_templates/Default.md`
    - **Bitbucket:** no native template support; use the description as a starting point
 2. Copy `reference/pr-signal-check.yml` to `.github/workflows/pr-signal-check.yml` (GitHub Actions) or adapt it to your CI system
-3. Add `.ver-pr-writer.yml` to the repo root with your provider set
+3. Add `.ver-pr.yml` to the repo root with your provider set
 4. Install the skill so your coding agents generate signal-compliant PR descriptions
 
 ## Goals

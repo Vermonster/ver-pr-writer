@@ -4,13 +4,11 @@ Per-provider CLI commands and detection logic for submit mode.
 
 ## Control file
 
-The skill reads `.ver-pr-writer.yml` from the repo root to determine the provider.
+The skill reads `.ver-pr.yml` from the repo root to determine the provider.
 
 ```yaml
 provider: github  # github | gitlab | bitbucket
 ```
-
-If this file is absent or `provider` is unset, the skill auto-detects from the git remote and asks the user to confirm, then writes the file.
 
 ## Auto-detection
 
@@ -26,14 +24,14 @@ If detection is ambiguous or the remote URL is private/custom, ask the user expl
 
 ## Saving the control file
 
-After the user confirms or selects a provider, write `.ver-pr-writer.yml` to the repo root:
+After the user confirms or selects a provider, write `.ver-pr.yml` to the repo root:
 
 ```bash
-echo "provider: <github|gitlab|bitbucket>" > .ver-pr-writer.yml
+echo "provider: <github|gitlab|bitbucket>" > .ver-pr.yml
 ```
 
 Inform the user:
-> Saved provider as `<provider>` to `.ver-pr-writer.yml`. Commit this file to share it with your team.
+> Saved provider as `<provider>` to `.ver-pr.yml`. Commit this file to share it with your team.
 
 ## GitHub
 

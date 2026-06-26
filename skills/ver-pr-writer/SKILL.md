@@ -42,12 +42,12 @@ Always end draft output with: *"Ready to submit? Say 'submit' to create or updat
 Before any submit action, resolve the git provider. Read `reference/provider-strategies.md` for the full control file format, auto-detection logic, and per-provider commands.
 
 **Resolution order:**
-1. Read `.ver-pr-writer.yml` from the repo root. If `provider` is set, use it.
+1. Read `.ver-pr.yml` from the repo root. If `provider` is set, use it.
 2. If the file is absent or `provider` is missing, run `git remote get-url origin` and match against known hostnames (github.com → `github`, gitlab.com → `gitlab`, bitbucket.org → `bitbucket`).
-3. If auto-detection succeeds, confirm with the user: *"Detected `<provider>` from your remote. Save this to `.ver-pr-writer.yml`?"* If yes, write the file.
-4. If auto-detection is ambiguous, ask: *"Which provider are you using?"* (GitHub / GitLab / Bitbucket), then write `.ver-pr-writer.yml`.
+3. If auto-detection succeeds, confirm with the user: *"Detected `<provider>` from your remote. Save this to `.ver-pr.yml`?"* If yes, write the file.
+4. If auto-detection is ambiguous, ask: *"Which provider are you using?"* (GitHub / GitLab / Bitbucket), then write `.ver-pr.yml`.
 
-After writing, inform the user: *"Saved provider as `<provider>` to `.ver-pr-writer.yml`. Commit this file to share it with your team."*
+After writing, inform the user: *"Saved provider as `<provider>` to `.ver-pr.yml`. Commit this file to share it with your team."*
 
 ### Submit mode
 
