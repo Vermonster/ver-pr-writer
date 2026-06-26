@@ -4,10 +4,11 @@ description: >
   Generate and validate reviewer-focused pull request descriptions using explicit
   PR signals. Analyzes diffs to surface intent, risk, evidence, and review focus
   so reviewers spend time on what matters. Two modes: draft (display only) and
-  submit (create or update the PR on GitHub). Use when preparing a PR description,
-  updating one from a diff, or checking whether stated signals match actual changes.
+  submit (create or update the PR on GitHub, GitLab, or Bitbucket). Use when
+  preparing a PR description, updating one from a diff, or checking whether
+  stated signals match actual changes.
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # Ver PR Writer
@@ -28,76 +29,48 @@ This skill has two modes. Determine which mode to use from context:
 
 - If the user says "draft", "generate", "prepare", or "write" a PR description, use **draft mode**.
 - If the user says "submit", "create", "open", "push", or "update" a PR, use **submit mode**.
-- If ambiguous or unclear, **always default to draft mode**. Display the description and ask: *"Would you like me to submit this to GitHub?"* Do not proceed to submit without an explicit yes.
+- If ambiguous or unclear, **always default to draft mode**. Display the description and ask: *"Would you like me to submit this?"* Do not proceed to submit without an explicit yes.
 
 ### Draft mode (default)
 
-Generate the PR description and display it to the user. Do not create or modify any PR on GitHub.
+Generate the PR description and display it to the user. Do not create or modify any PR.
 
-Always end draft output with: *"Ready to submit? Say 'submit' to create or update the PR on GitHub."*
+Always end draft output with: *"Ready to submit? Say 'submit' to create or update the PR."*
+
+### Provider detection
+
+Before any submit action, resolve the git provider. Read `reference/provider-strategies.md` for the full control file format, auto-detection logic, and per-provider commands.
+
+**Resolution order:**
+1. Read `.ver-pr-writer.yml` from the repo root. If `provider` is set, use it.
+2. If the file is absent or `provider` is missing, run `git remote get-url origin` and match against known hostnames (github.com → `github`, gitlab.com → `gitlab`, bitbucket.org → `bitbucket`).
+3. If auto-detection succeeds, confirm with the user: *"Detected `<provider>` from your remote. Save this to `.ver-pr-writer.yml`?"* If yes, write the file.
+4. If auto-detection is ambiguous, ask: *"Which provider are you using?"* (GitHub / GitLab / Bitbucket), then write `.ver-pr-writer.yml`.
+
+After writing, inform the user: *"Saved provider as `<provider>` to `.ver-pr-writer.yml`. Commit this file to share it with your team."*
 
 ### Submit mode
 
-**Always confirm with the user before taking any action on GitHub.** Show the generated description and ask for explicit approval before creating or updating a PR. If the user has not confirmed, stop and wait.
+**Always confirm with the user before taking any action on the remote.** Show the generated description and ask for explicit approval before creating or updating a PR. If the user has not confirmed, stop and wait.
 
-Generate the PR description, then create or update the pull request on GitHub.
+Resolve the provider (see above), then follow the provider-specific strategy in `reference/provider-strategies.md`.
 
 #### Detecting an existing PR
 
-Before creating a new PR, check whether one already exists for the current branch:
-1. Run `gh pr view --json number,title,url` in the terminal
-2. If a PR exists, update its body. If no PR exists, create a new one.
-
-#### Submitting via GitHub Pull Request tool (preferred)
-
-If the `github-pull-request_create_pull_request` tool is available, use it to create new PRs:
-- Set `title` to the H1 from the generated PR description
-- Set `body` to the full generated PR description
-- Set `head` to the current branch name (from `git branch --show-current`)
-- Set `draft` to `true` unless the user explicitly requests a non-draft PR
-
-This tool cannot update existing PRs. Fall back to `gh` CLI for updates.
-
-#### Submitting via gh CLI (fallback or update)
-
-Use `gh` CLI when the GitHub Pull Request tool is unavailable, or when updating an existing PR.
-
-**Create a new PR:**
-```bash
-gh pr create --title "<title>" --body "<body>" --draft
-```
-
-**Update an existing PR body:**
-```bash
-gh pr edit --body "<body>"
-```
-
-**Update title and body:**
-```bash
-gh pr edit --title "<title>" --body "<body>"
-```
-
-For long PR bodies, write to a temp file to avoid shell escaping issues:
-```bash
-gh pr create --title "<title>" --body-file /tmp/pr-body.md --draft
-gh pr edit --body-file /tmp/pr-body.md
-```
+Check whether a PR already exists for the current branch using the provider-specific command from `reference/provider-strategies.md`. If a PR exists, update its body. If not, create a new one.
 
 #### Submit mode safeguards
 
 - **Always confirm with the user before creating or updating a PR.** Show the full description and wait for explicit approval. Never proceed on implied consent.
 - When updating, show a diff summary of what will change before applying.
 - Never force-push, delete branches, or merge as part of this skill.
-- If `gh auth status` fails, instruct the user to run `gh auth login` and stop.
+- If auth fails for the detected provider, instruct the user to authenticate and stop.
 
 #### Post-submit: visual evidence prompt
 
 After successfully creating or updating a PR that includes UI changes (flagged in Step 1), remind the user:
 
-> This PR includes UI changes. Consider adding screenshots or a short screencast to the Evidence section to help reviewers assess the visual impact. You can edit the PR body directly on GitHub or run:
-> ```bash
-> gh pr view --web
-> ```
+> This PR includes UI changes. Consider adding screenshots or a short screencast to the Human Review section to help reviewers assess the visual impact.
 
 Do not block on this. It is a recommendation, not a requirement.
 
@@ -106,11 +79,12 @@ Do not block on this. It is a recommendation, not a requirement.
 This skill includes companion files in the `reference/` directory:
 
 - `reference/template.md` — the output template to follow when generating a PR description
+- `reference/provider-strategies.md` — per-provider submit strategies (GitHub, GitLab, Bitbucket), control file format, and auto-detection logic
 - `reference/pr-signals.md` — team-facing explanation of what PR signals are and why they matter
-- `reference/pr-template.md` — GitHub PR template teams can adopt (`.github/pull_request_template.md`)
+- `reference/pr-template.md` — PR template teams can adopt
 - `reference/pr-signal-check.yml` — CI workflow that checks required sections are present
 
-Read `reference/template.md` before generating output. Use the other files when the user asks about adopting PR signals in their project.
+Read `reference/template.md` before generating output. Read `reference/provider-strategies.md` before any submit action. Use the other files when the user asks about adopting PR signals in their project.
 
 ## Agent responsibilities
 

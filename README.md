@@ -37,7 +37,7 @@ The skill has two modes: **draft** and **submit**.
 
 ### Draft mode (default)
 
-Generates the PR description and displays it without touching GitHub. Use this to review and iterate before submitting.
+Generates the PR description and displays it without touching your remote. Use this to review and iterate before submitting.
 
 > "Write a PR description for this branch"
 >
@@ -47,7 +47,7 @@ Generates the PR description and displays it without touching GitHub. Use this t
 
 ### Submit mode
 
-Generates the PR description, then creates or updates the pull request on GitHub. The skill checks for an existing PR on the current branch and either creates a new one or updates the body.
+Generates the PR description, then creates or updates the pull request on your remote (GitHub, GitLab, or Bitbucket). The skill checks for an existing PR on the current branch and either creates a new one or updates the body.
 
 > "Submit a PR for this branch"
 >
@@ -67,17 +67,51 @@ The skill will always confirm before creating a new PR, and show a summary befor
 |------|---------|
 | `skills/ver-pr-writer/SKILL.md` | Agent instructions for generating and validating PR descriptions |
 | `skills/ver-pr-writer/reference/template.md` | Output template the agent follows |
+| `skills/ver-pr-writer/reference/provider-strategies.md` | Per-provider submit strategies (GitHub, GitLab, Bitbucket) |
 | `skills/ver-pr-writer/reference/pr-signals.md` | Team-facing explanation of PR signals |
-| `skills/ver-pr-writer/reference/pr-template.md` | GitHub PR template teams can adopt |
+| `skills/ver-pr-writer/reference/pr-template.md` | PR template teams can adopt |
 | `skills/ver-pr-writer/reference/pr-signal-check.yml` | CI workflow to enforce required sections |
+
+## Git provider
+
+The skill works with **GitHub, GitLab, and Bitbucket**. It stores your provider in a control file at the repo root:
+
+```yaml
+# .ver-pr-writer.yml
+provider: github  # github | gitlab | bitbucket
+```
+
+**Setting the provider:**
+
+You can create this file manually, or let the skill do it for you. On the first submit, the skill will:
+1. Try to auto-detect the provider from your git remote URL
+2. Confirm the detected provider with you
+3. Write `.ver-pr-writer.yml` automatically
+
+You can also set it explicitly:
+
+```bash
+echo "provider: gitlab" > .ver-pr-writer.yml
+```
+
+Commit `.ver-pr-writer.yml` to share the provider setting with your team. If the file is absent, each person will be asked once.
+
+**Provider-specific behavior:**
+- **GitHub** — uses `gh` CLI or the `github-pull-request_create_pull_request` MCP tool; creates draft PRs by default
+- **GitLab** — uses `glab` CLI; creates draft MRs; uses "Merge Request" terminology
+- **Bitbucket** — uses `bb` CLI or falls back to the Bitbucket REST API; no native draft support
 
 ## Adopting PR signals in your project
 
 To enforce the signal structure on your team's PRs:
 
-1. Copy `reference/pr-template.md` to `.github/pull_request_template.md` in your repo
-2. Copy `reference/pr-signal-check.yml` to `.github/workflows/pr-signal-check.yml`
-3. Install the skill so your coding agents generate signal-compliant PR descriptions
+1. Copy `reference/pr-template.md` to the appropriate location for your provider:
+   - **GitHub:** `.github/pull_request_template.md`
+   - **GitLab:** `.gitlab/merge_request_templates/Default.md`
+   - **Bitbucket:** no native template support; use the description as a starting point
+2. Copy `reference/pr-signal-check.yml` to `.github/workflows/pr-signal-check.yml` (GitHub Actions) or adapt it to your CI system
+3. Add `.ver-pr-writer.yml` to the repo root with your provider set
+4. Install the skill so your coding agents generate signal-compliant PR descriptions
 
 ## Goals
 
