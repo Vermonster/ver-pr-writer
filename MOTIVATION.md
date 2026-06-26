@@ -309,15 +309,19 @@ This avoids fake certainty, which is a big failure mode in AI-heavy workflows.
 
 ---
 
-# Why we built this skill
+# Why we built these skills
 
-This is exactly why we created **ver-pr-writer**.
+This is exactly why we created **ver-pr-writer** and **ver-pr-review**.
 
-We took everything above — the nine signal categories, the mismatch heuristics, the five core buckets — and distilled it into an agent skill that does the work for you. When you run it against a diff, it inspects the changes, classifies risk, surfaces uncertainty, and produces a structured PR description that both humans and agents can act on immediately.
+We took everything above — the nine signal categories, the mismatch heuristics, the five core buckets — and distilled them into two agent skills that do the work for you.
 
-We built it because we needed it. Our team was drowning in PRs and reviews were becoming the weakest link in an otherwise fast workflow. Once we started using structured signals, reviews got faster, more targeted, and more honest. Rubber stamps dropped. Real bugs got caught earlier.
+**ver-pr-writer** inspects a diff and produces a structured PR description in three sections: Intent (purpose, outcome, risk, scope), Technical (changed files, risk, test commands), and Human Review (where to start, how to demo locally, judgment questions). It validates the signals against the actual diff before producing output.
 
-We're sharing it because we know we're not the only team hitting this wall. If you're shipping AI-generated code at any meaningful pace, you're probably feeling it too. And if your pipeline already has agents enforcing formatting, linting, and code quality — you've already done the hard part. The next step is making sure human review time is spent on the things agents *can't* judge: domain fit, design intent, and whether the mental model actually holds.
+**ver-pr-review** runs a two-phase review. In the agent phase, it inspects the implementation for bugs, checks docs and spec sync, looks for a linked issue, and reaches a technical position. In the human phase, it presents its findings, builds a concrete local test guide from the actual implementation, and asks for your judgment. The final review combines both positions — approval requires both — and is submitted terse, with blocking changes listed specifically so they can be quickly acted on.
+
+We built them because we needed them. Our team was drowning in PRs and reviews were becoming the weakest link in an otherwise fast workflow. Once we started using structured signals, reviews got faster, more targeted, and more honest. Rubber stamps dropped. Real bugs got caught earlier.
+
+We're sharing them because we know we're not the only team hitting this wall. If you're shipping AI-generated code at any meaningful pace, you're probably feeling it too. And if your pipeline already has agents enforcing formatting, linting, and code quality — you've already done the hard part. The next step is making sure human review time is spent on the things agents *can't* judge: domain fit, design intent, and whether the mental model actually holds.
 
 The five buckets that matter most:
 
@@ -357,16 +361,24 @@ You don't have to adopt everything at once. This is the smallest set of signals 
 
 ## Required author-provided signals
 
-* Purpose
-* Mental model
-* Main changes
-* Risk level
-* Risk areas
-* Review hotspots
-* How to test locally
-* Expected behavior
-* Non-goals
+These map to the three sections in the PR description:
+
+**Intent**
+* Purpose and outcome
+* Change type and scope
+* Linked issue or ticket
+
+**Technical**
+* Key changed files with one-line descriptions
+* Risk level and hotspots
+* Test commands scoped to the change
 * Rollout / migration notes if applicable
+
+**Human Review**
+* Where to start and what to skim
+* Demo or spot-check walkthrough
+* Non-goals
+* Assumptions and uncertainty
 
 ## Auto-derived signals
 
