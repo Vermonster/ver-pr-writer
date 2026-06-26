@@ -13,23 +13,11 @@ PRs should expose enough structure for both human and agent reviewers to answer 
 ### Intent
 What problem is being solved, what outcome is expected, and what scope does the change have?
 
-### Mental model
-How should a reviewer think about the change at a system level? Where does behavior start, where does the core logic live, and what is intentionally unchanged?
+### Technical
+What files changed and how? What is the risk level, hotspots, and edge cases? What automated tests cover this, and how do you run them? Are there migration or rollout concerns?
 
-### Risk
-What could go wrong? What systems are affected? What are the hotspots, failure modes, and edge cases?
-
-### Evidence
-What validation supports the change? Tests, manual verification, examples, screenshots, traces, or other artifacts.
-
-### Focus
-Where should reviewers spend their attention, and what can they skim?
-
-### Operations
-What matters at merge and deploy time? Rollout, migrations, feature flags, dependency changes, monitoring, and rollback.
-
-### Uncertainty
-What assumptions, known gaps, or judgment calls remain?
+### Human Review
+Where should reviewers start and what can they skim? How do you demo or spot-check the change locally? What explicit questions need human judgment? What assumptions or gaps remain?
 
 ## Why this matters in AI-heavy code review
 
@@ -39,19 +27,12 @@ AI increases PR throughput faster than human review capacity. The old model of r
 
 Every PR should include:
 
-- Purpose
-- Outcome
+- Purpose and outcome
 - Scope
-- Mental model
-- Main changes
-- Risk level
-- Risk areas
-- Blast radius
-- Review hotspots
-- Validation performed
-- How to test locally
-- Expected behavior
-- Rollout or migration notes when relevant
+- Key changed files with one-line descriptions
+- Risk level and hotspots
+- Test commands scoped to the change
+- Demo / spot-check walkthrough
 - Assumptions and known gaps
 
 ## Optional machine-readable metadata

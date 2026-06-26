@@ -17,13 +17,8 @@ jobs:
             const body = context.payload.pull_request?.body || "";
             const required = [
               "## Intent",
-              "## Mental model",
-              "## What changed",
-              "## Risk signals",
-              "## Evidence / validation",
-              "## Review targeting",
-              "## Operations",
-              "## Uncertainty / judgment calls"
+              "## Technical",
+              "## Human Review"
             ];
 
             const missing = required.filter(section => !body.includes(section));

@@ -51,7 +51,7 @@ Before creating a new PR, check whether one already exists for the current branc
 #### Submitting via GitHub Pull Request tool (preferred)
 
 If the `github-pull-request_create_pull_request` tool is available, use it to create new PRs:
-- Set `title` to a concise summary derived from the Intent section
+- Set `title` to the H1 from the generated PR description
 - Set `body` to the full generated PR description
 - Set `head` to the current branch name (from `git branch --show-current`)
 - Set `draft` to `true` unless the user explicitly requests a non-draft PR
@@ -167,106 +167,63 @@ Scan the diff for signals that the change affects user-visible interface:
 - changes to error messages, labels, or user-facing copy
 - changes to email templates or PDF rendering
 
-If any of these are present, flag the PR as having UI changes. This flag is used in Step 6 (evidence) and after submit.
+If any of these are present, flag the PR as having UI changes. This flag is used in the Technical section (test it / evidence) and after submit.
 
-### Step 2: Infer intent
-Write:
-- Purpose: the problem being solved
-- Outcome: the expected result
+### Step 2: Draft the Intent header
+Write a single compact block:
+- Title: a concise imperative phrase (e.g. "Extract shared input validator", "Add rate limiting to search API") — used as both the H1 and the PR title
+- Purpose: one sentence on the problem being solved
+- Outcome: one sentence on what becomes true after merge
+- Type / Risk / Scope on one line
+- Linked context if any
 
-A good purpose explains why the change exists.
-A good outcome explains what becomes true after merge.
+### Step 3: Build the Technical section
 
-### Step 3: Build the mental model
-Explain:
-- where the behavior starts
-- where the core logic lives
-- what boundaries are crossed
-- what remains intentionally unchanged
+**What changed:** List only signal-bearing files with one-line descriptions. Group test files together. Do not list generated, formatting, or lockfile changes — call them out in Human Review as "skim".
 
-Help a reviewer understand the architecture of the change in a few sentences.
-
-### Step 4: Separate signal from noise
-Group changes into:
-- main changes (behavioral or structural)
-- supporting changes (refactors, test updates, docs)
-- mechanical or low-signal changes (formatting, generated code, renames, lockfiles, codemods)
-
-Do not give equal weight to all files.
-
-### Step 5: Assess risk
-Assign:
-- risk level: low, medium, or high
-- risk areas
-- blast radius
-- review hotspots
-- caveats and edge cases
-
-Use real evidence from the diff.
+**Risk:** Assign low / medium / high with a short rationale. Name specific hotspots and edge cases. Use the risk heuristics below.
 
 #### Risk heuristics
 
-**Low risk:**
-docs only, formatting only, isolated refactor with unchanged behavior and stable tests, narrow copy or presentation change, internal cleanup with no contract changes.
+**Low:** docs only, formatting only, isolated refactor with unchanged behavior and stable tests, narrow copy or presentation change, internal cleanup with no contract changes.
 
-**Medium risk:**
-targeted logic change, new validation path, bounded behavior change, non-breaking endpoint evolution, moderate refactor around live logic.
+**Medium:** targeted logic change, new validation path, bounded behavior change, non-breaking endpoint evolution, moderate refactor around live logic.
 
-**High risk:**
-auth or security changes, migrations, concurrency or caching correctness, config or deployment changes, public contract changes, multi-system coordination, broad deletion or rewrite of core logic.
+**High:** auth or security changes, migrations, concurrency or caching correctness, config or deployment changes, public contract changes, multi-system coordination, broad deletion or rewrite of core logic.
 
-### Step 6: Extract evidence
-Document:
-- **Tests in this PR:** what test files changed, what cases were added or modified, and what behavior they assert
-- **How to run those tests:** exact commands scoped to the changed files (e.g., `npm test path/to/spec`, `npm run test:int -- grep "feature name"`); label any prerequisites (db running, seed data, feature flag)
-- what validation was performed beyond automated tests (manual checks, QA, exploratory)
-- expected reviewer-observable behavior
-- useful artifacts: screenshots, sample requests, logs, before/after behavior
+**Test it:** Provide exact commands scoped to changed files (e.g., `npm test path/to/spec`). Label prerequisites (db running, seed data, feature flag). Add manual steps only when automated tests don't cover the observable behavior. For UI changes, add a placeholder for screenshots/screencast.
 
-Test execution and behavioral demo are different. This step covers the test suite. Step 7 covers the live walkthrough.
+**Operations** (include only if relevant): migration sequencing, feature flags, rollback plan, contract or dependency changes.
 
-If the PR includes UI changes (from Step 1), note in the Evidence section that screenshots or a short screencast would strengthen the PR. Add a placeholder like:
+### Step 4: Build the Human Review section
 
-> **Visual evidence needed:** This PR includes UI changes. Add before/after screenshots or a short screencast to this section after the PR is created.
+**Start here:** Name the single most signal-dense file and say why in one sentence.
 
-### Step 7: Target review attention
-Identify:
-- best review order (fewest files, most signal first)
-- files or modules to focus on
-- changes that can be skimmed
-- explicit questions for reviewer judgment
+**Skim:** Name low-signal files (formatting, generated, lockfiles, mechanical renames).
 
-The goal is to reduce review effort while increasing review quality.
+**Non-goals:** Call out what was intentionally not changed.
 
-#### How to demo locally
+**Demo / spot check:** Write a concrete walkthrough a reviewer can follow in under 5 minutes to observe the change working end-to-end. This is separate from the automated test commands in Technical.
 
-A demo is a live behavioral walkthrough — not a test run. It lets reviewers observe the change working end-to-end in a real environment. It is separate from Step 6's test commands, which exercise the automated suite.
+Format:
+1. Start command (dev server, seed, feature flag if needed)
+2. Navigate to the exact route or trigger point
+3. Action: what to click, fill, submit, or call
+4. Observe: specific UI state, response field, log line, or DB value that confirms it worked
+5. (Optional) Negative case: what should now be rejected or look different
 
-For every PR, write a concrete demo walkthrough that lets a reviewer reproduce and experience the change in under 5 minutes. Frame the demo around the mental model and purpose — not just the mechanics.
+For UI changes, list every affected route/component as its own item:
+- `/path/to/page` — action → expected result
+- `/path/to/other` — action → expected result
 
-**Format:**
-1. One sentence that anchors the demo to the PR's purpose ("This demo exercises the new X behavior introduced to solve Y")
-2. Any prerequisite setup (seed data, feature flags, env vars, dev server) — distinct from test fixtures
-3. Numbered UI steps or `curl`/HTTP examples that trigger the changed behavior
-4. What to observe — specific UI state, API response field, log line, or DB value that confirms the change worked
-5. (Optional) A negative case: a scenario that should now be rejected or behave differently — framed as what a user would see, not a test assertion
+For API/server changes, provide a `curl` or sample request with the expected response.
 
-**When to include UI steps:** whenever the diff touches components, pages, forms, or navigation. Name the exact route and describe what to click or observe.
+Do not write a generic "run `npm run dev`" placeholder. If the change is too abstract to demo, name the integration test or log line that confirms the behavior.
 
-**When to include API examples:** whenever the diff touches server actions, API routes, or service logic with an external surface. Provide a `curl` command or sample request body.
+**Questions for reviewers:** Ask only real questions — design tradeoffs, threshold choices, naming decisions — that need human judgment. Skip if there are none.
 
-**When both apply:** include both, UI first.
+**Uncertainty:** State assumptions, known gaps, and places where reviewer judgment matters more than correctness. Do not hide uncertainty.
 
-Do not write a generic "run `npm run dev`" placeholder. If the change is too abstract to demo, explain what integration test or log confirms the behavior instead.
-
-### Step 8: Surface uncertainty
-State:
-- assumptions
-- known gaps
-- incomplete validation
-- places needing human judgment
-
-Do not hide uncertainty.
 
 ### Step 9: Validate before finalizing
 
@@ -298,31 +255,31 @@ If a mismatch exists, revise the PR description to reflect the code truthfully.
 
 ## Output
 
-Use the template from `reference/template.md`. Produce markdown with these sections:
+Use the template from `reference/template.md`. Produce markdown with three top-level blocks:
 
-1. Intent
-2. Mental model
-3. What changed
-4. Risk signals
-5. Evidence / validation
-6. Review targeting
-7. Operations
-8. Uncertainty / judgment calls
+1. **Intent** — one compact header: purpose, outcome, type/risk/scope on one line, linked context
+2. **Technical** — what changed (named files with one-line descriptions), risk (level + hotspots + edge cases), how to test (exact commands + manual steps), and operations notes if relevant (migrations, rollout, rollback)
+3. **Human Review** — where to start, what to skim, non-goals, a concrete demo/spot-check walkthrough, explicit questions for reviewers, and uncertainty/judgment calls
 
-Use concise markdown with real file, module, endpoint, or workflow names.
+Use concise markdown with real file, module, endpoint, or workflow names. Omit any subsection that has nothing meaningful to say. Do not repeat information between sections.
 
 ## Style guidance
 
-**Prefer plain English.** Use language a busy reviewer can scan quickly.
+**Terse over verbose.** Each bullet or sentence should carry new information. Cut any sentence a reviewer would skip.
 - Good: "prevents invalid requests from reaching downstream processing"
 - Bad: "introduces pre-persistence input quality enforcement semantics"
 
+**Prefer plain English.** Use language a busy reviewer can scan in under 10 seconds per section.
+
 **Be concrete.** Name files, modules, endpoints, commands, workflows, flags, and migrations.
 
-**Be compact but dense.** Short to medium length, high information density.
+**Two-section discipline.**
+- **Technical** answers: what changed, what could break, how to verify with automated tests.
+- **Human Review** answers: where to look, how to demo it locally, what to judge, what's uncertain.
+- Do not blur the boundary. Risk facts go in Technical. Reviewer guidance and demo steps go in Human Review.
 
 **Avoid these failure modes:**
-- narrating every changed file
+- narrating every changed file — name only the signal-bearing ones
 - saying "misc fixes" or "minor cleanup" when behavior changed
 - claiming improved performance without evidence
 - claiming tests passed unless known
@@ -333,11 +290,12 @@ Use concise markdown with real file, module, endpoint, or workflow names.
 
 Before returning output, confirm the result:
 - clearly states the purpose
-- gives a useful mental model
 - separates major changes from noise
 - identifies real risk
-- includes realistic validation guidance
-- targets reviewer attention
+- includes automated test commands scoped to changed files
+- includes a concrete demo walkthrough (not a generic placeholder)
+- targets reviewer attention to the right files
 - covers operational concerns when relevant
 - surfaces uncertainty honestly
+- uses no emoji
 - is grounded in the actual diff

@@ -28,7 +28,7 @@ When activated, the skill:
 
 1. Inspects the git diff, changed files, commit messages, tests, and other available context
 2. Classifies the change type, scope, and risk
-3. Generates a structured PR description covering intent, mental model, risk signals, evidence, review targeting, operations, and uncertainty
+3. Generates a structured PR description with three sections: **Intent** (purpose, outcome, type/risk/scope), **Technical** (changed files, risk, test commands, operations), and **Human Review** (where to start, demo walkthrough, questions, uncertainty)
 4. Validates the generated signals against the actual diff and fixes mismatches
 
 ## Usage

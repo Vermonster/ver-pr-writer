@@ -1,116 +1,56 @@
-# PR signals
+# <PR title>
 
 ## Intent
 
-### Change type
-...
+**Purpose:** ...
+**Outcome:** ...
+**Type:** Bug fix | Feature | Refactor | Cleanup | Infra | Docs | Test-only — **Risk:** Low | Medium | High — **Scope:** Narrow | Bounded | Cross-cutting
+**Linked:** ...
 
-### Purpose
-...
+---
 
-### Outcome
-...
+## Technical
 
-### Scope
-...
+**What changed**
+- `path/to/file.ts` — what it does now
+- `path/to/file.test.ts` — what cases were added or changed
 
-### Linked context
-...
+**Risk**
+- Risk level and reason
+- Key hotspots or edge cases
 
-## Mental model
-
-### How to think about this change
-...
-
-### Main flow / affected boundaries
-- ...
-
-### Non-goals
-- ...
-
-## What changed
-
-### Main changes
-- ...
-
-### Supporting changes
-- ...
-
-### Noise / mechanical changes
-- ...
-
-## Risk signals
-
-### Risk level
-Low | Medium | High
-
-### Risk areas
-- ...
-
-### Blast radius
-...
-
-### Key review hotspots
-- ...
-
-### Edge cases / failure modes / caveats
-- ...
-
-## Evidence / validation
-
-### Validation performed
-- ...
-
-### What was tested
-...
-
-### How to test locally
-
+**Test it**
 ```bash
-...
+# exact command scoped to changed files
 ```
+Manual: step-by-step if needed; note what to observe.
 
-1. ...
-2. ...
-
-### Expected behavior
-...
-
-### Evidence artifacts
-...
-
-## Review targeting
-
-### Best way to review this PR
-1. ...
-2. ...
-3. ...
-
-### Suggested review focus
+<!-- If operations notes apply (migrations, config, rollout, rollback), add them here:
+**Operations**
 - ...
-- ...
+-->
 
-### Questions for reviewers
-- ...
+---
 
-## Operations
+## Human Review
 
-### Migration / rollout notes
-...
+**Start here:** `path/to/key-file.ts` — one sentence on why it's the most signal-dense file.
+**Skim:** low-signal files (formatting, generated, lockfile).
+**Non-goals:** what was intentionally left unchanged.
 
-### Monitoring / rollback
-...
+**Demo / spot check**
+1. Start the dev server: `...`
+2. Navigate to: `...`
+3. Do: click / fill / submit / observe
+4. Expect: what you should see or what should not appear
 
-### Dependency / contract changes
-...
+<!-- For UI changes, list each affected route/component and the specific action + expected result:
+- `/path/to/page` — click X → expect Y
+- `/path/to/other` — submit form with Z → expect validation error / success state
+-->
 
-## Uncertainty / judgment calls
-
-### Assumptions
+**Questions for reviewers**
 - ...
 
-### Known gaps
-- ...
-
-### Human judgment needed
-- ...
+**Uncertainty**
+- Assumptions, known gaps, or areas where reviewer judgment matters more than correctness.
