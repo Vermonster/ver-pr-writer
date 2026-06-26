@@ -34,7 +34,7 @@ When activated, the skill:
 
 ### Usage
 
-### Draft mode (default)
+#### Draft mode (default)
 
 Generates the PR description and displays it without touching your remote. Use this to review and iterate before submitting.
 
@@ -44,7 +44,7 @@ Generates the PR description and displays it without touching your remote. Use t
 >
 > "Generate a PR description"
 
-### Submit mode
+#### Submit mode
 
 Generates the PR description, then creates or updates the pull request on your remote (GitHub, GitLab, or Bitbucket). The skill checks for an existing PR on the current branch and either creates a new one or updates the body.
 
@@ -62,13 +62,53 @@ The skill will always confirm before creating a new PR, and show a summary befor
 
 ## ver-pr-review
 
-Reviews PRs in two phases:
+`ver-pr-review` runs a structured two-phase review process and combines both positions into a terse final review that you confirm before it's submitted.
 
-**Phase 1 — Agent:** The agent inspects the diff, checks docs sync, looks for a linked issue, optionally runs a local refactor check, and reaches a technical position (approve / request changes / comment).
+### Phase 1: Agent review
 
-**Phase 2 — Human:** The agent builds a concrete local test guide from the actual implementation and presents its findings. You provide your review position and any additional feedback.
+The agent inspects the diff automatically before asking you anything:
 
-The skill then combines both positions — approval requires both agent and human — and proposes a terse final review for you to confirm before submitting.
+- **Implementation review** — reads the diff for bugs, logic errors, security issues, and correctness vs. the stated PR intent
+- **Refactor check** — invokes a local refactor skill on changed files if one is available
+- **Docs/spec sync** — checks that README, API docs, and specs (RSpec, OpenAPI, Gherkin, etc.) reflect the new behavior
+- **Issue linkage** — looks for a linked issue or ticket in the description, commits, or branch name
+
+It then reaches an internal technical position: **approve**, **request changes**, or **comment**.
+
+### Phase 2: Human review
+
+The agent presents its findings and builds a local test guide from the actual implementation — not from the PR description. You get:
+
+1. The agent's position and any blocking items (specific, actionable, with file references)
+2. A numbered walkthrough to reproduce and observe the change locally
+3. Any judgment questions the agent can't resolve (design tradeoffs, thresholds, naming)
+
+Then it asks for your position. You can approve, request specific changes, or comment.
+
+### Final review
+
+Positions are combined: **approval requires both agent and human to approve.** The skill drafts a terse review for your confirmation:
+
+**If approving:**
+```
+Approved.
+```
+
+**If requesting changes:**
+```
+Requesting changes.
+
+**Must fix:**
+1. `lib/auth.ts:47` — token is compared with `==` instead of a constant-time check; use `crypto.timingSafeEqual`
+2. No test covers the expired-token path added in `app/api/session.ts`
+
+**Optional:**
+- `README.md` — auth flow diagram is outdated
+```
+
+The review is submitted to GitHub, GitLab, or Bitbucket on your confirmation.
+
+### Usage
 
 > "Review PR #42"
 >
@@ -76,7 +116,7 @@ The skill then combines both positions — approval requires both agent and huma
 >
 > "Do a code review"
 
-
+## What's included
 
 ### ver-pr-writer
 
